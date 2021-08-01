@@ -5,7 +5,7 @@
     "description": "Node-Express-TS Chat Application - Server",
     "author": "Vertika Jain",
     "scripts": {
-        "build": "tsc",
+        // "build": "tsc",
         "server": "npm install && tsc && npm run seed && nodemon ./build/index.js",
         "client": "cd ./frontend && npm install && npm start",
         "start": "node ./build/src/index.js",
