@@ -12,7 +12,7 @@
         "seed": "node ./scripts/seed.ts",
         "dev": "concurrently \"npm run server\" \"npm run client\"",
         "postinstall": "tsc && npm run seed",
-        "start": "concurrently \"npm run server\" \"npm run client\"",
+        "start": "concurrently \"npm run server\" \"npm run client\""
     },
     "files": [
         "src"
