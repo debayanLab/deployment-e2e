@@ -5,7 +5,7 @@
     "description": "Node-Express-TS Chat Application - Server",
     "author": "Vertika Jain",
     "scripts": {
-        "server": "nodemon ./build/index.js",
+        "server": "tsc && npm run seed && nodemon ./build/index.js",
         "client": "cd ./frontend && npm install && npm start",
         "ts:watch": "tsc -w",
         "test": "echo \"Error: no test specified\" && exit 1",
