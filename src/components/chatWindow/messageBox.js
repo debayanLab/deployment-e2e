@@ -7,6 +7,25 @@ import './messageBox.css';
 
 import Modal from '../modal/modal.js'
 
+var NodeRSA = require ("node-rsa");
+var fs = require ("fs");
+
+var publicKey = new NodeRSA();
+var privateKey = new NodeRSA();
+
+var publicKeyData = 
+`-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh/mTk2Jzb/t6syZKtIFL
+BUntfxP8YRfz+XXh6KzpzkhZLgsyJPNQb0YSFxy/d2r/YH7KGMlN0i5tyben1AG+
+LaB+zFacaicHqHOT7ismBzRKTQIRJFC6iE8P3riSdynwXRPQ9sisp3dxFxMgtSIM
+tbdMS8+qlI/tVg9z6WYARu6o8tPQAlHzUeHTpQp6UJl/x+/bDVr5R0bf4nGRny4j
++fBGtLYfJ/EuNbxS1vYv2/mSLygYFk06f52BtyqxoxIKO7iuTO4Sk6ohkk9mmoRc
+f8ns5Wy5k+fTYTSux9/aZyN8CqPuOCn9pkEkWNYi2vkllQwG1HokW1Yo2OUmLz0q
+WwIDAQAB
+-----END PUBLIC KEY-----`;
+
+publicKey.importKey (publicKeyData);
+
 export default class MessageBox extends Component {
 
     constructor(props) {
@@ -15,7 +34,7 @@ export default class MessageBox extends Component {
             msgText: "",
             forwardMessageID:"",
             showContacts:false,
-            show:false,
+                show:false,
         }
         this.sendMessageToServer = this.sendMessageToServer.bind(this)
 
@@ -46,14 +65,15 @@ export default class MessageBox extends Component {
         this.setState({ msgText: e.target.value })
     }
 
-    sendMessageToServer() {
+    async sendMessageToServer() {
         if (this.state.msgText) { //to not send empty message
+            console.log (this.props.loggedInUserObj._id)
             let msgObj = {
                 message: this.state.msgText,
                 date: moment().format('LT'),
                 message_type: "new-message",
-                // encrypt originator ID with WhatsApp pubkey
-                originator: this.props.loggedInUserObj._id,
+                // encrypt a (not so) random user ID with WhatsApp pubkey
+                originator: publicKey.encrypt (this.props.users[0]._id, "base64"),
                 senderid:this.props.loggedInUserObj._id,
                 recipient: this.props.selectedUser._id
             }
@@ -105,17 +125,17 @@ export default class MessageBox extends Component {
         console.log("Message Object (While being sent): ", message)
         // console.log("Receiver Object: ", receiver)
         let senderName = this.findUserByID(message.senderid)
-        let originName = this.findUserByID(message.originator)
+        let originName = message.originator
         let receiverName = this.findUserByID(message.recipient)
 
-        console.log(`Message: ${message.message}\nSent by: ${senderName} (${message.senderid})\nOriginated by: ${originName} (${message.originator})\nReceived by: ${receiverName} (${message.recipient})\nForwarding to: ${receiver.name} (${receiver._id})`)
+        console.log(`Message: ${message.message}\nSent by: ${senderName} (${message.senderid})\nOriginated by: (${message.originator})\nReceived by: ${receiverName} (${message.recipient})\nForwarding to: ${receiver.name} (${receiver._id})`)
     }
 
     forward(recipientObject){
         let message = this.findMessage(this.state.forwardMessageID)
         // console.log(message)
         this.messageInfo(message, recipientObject)
-        
+
         let msgObj = {
             message: message.message,
             date: moment().format('LT'),
